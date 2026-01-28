@@ -139,6 +139,8 @@ export const useEventStore = create((set, get) => ({
     },
   
     deleteCategory: async (category_id) => {
+
+
       try {
         await axiosInstance.delete(`/categories/${category_id}`);
    
@@ -181,6 +183,9 @@ export const useEventStore = create((set, get) => ({
     },
   
     deleteEvent: async (category_id, event_id) => {
+
+      console.log(category_id, event_id);
+      
       try {
         const res = await axiosInstance.delete(
           `/categories/${category_id}/events/${event_id}`

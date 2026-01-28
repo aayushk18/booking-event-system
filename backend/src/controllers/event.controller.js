@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import { Event } from "../models/events.model.js";
 
 export const createEvent = async (req, res) => {
@@ -75,6 +76,9 @@ export const updateEvent = async (req, res) => {
   try {
     const { category_id } = req.body;
 
+    console.log(req.body);
+    
+
     const updatedEvent = await Event.findOneAndUpdate(
       { "categories._id": category_id }, 
       {
@@ -107,32 +111,41 @@ export const updateEvent = async (req, res) => {
     });
   }
 };
-
+ 
 
 export const deleteEvent = async (req, res) => {
   try {
-    const { category_id } = req.params;
+    const { category_id, event_id } = req.params;
 
-    const deletedEvent = await Event.findOneAndUpdate(
-      { "categories._id": category_id },
+    if (!mongoose.Types.ObjectId.isValid(category_id) ||
+        !mongoose.Types.ObjectId.isValid(event_id)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid category or event ID",
+      });
+    }
+
+    const updatedCategory = await Event.findByIdAndUpdate(
+      category_id,
       {
         $pull: {
-          categories: { _id: category_id },
+          categories: { _id: event_id },
         },
       },
       { new: true }
     );
 
-    if (!deletedEvent) {
+    if (!updatedCategory) {
       return res.status(404).json({
         success: false,
-        message: "Event not found",
+        message: "Category not found",
       });
     }
 
     res.status(200).json({
       success: true,
       message: "Event deleted successfully",
+      data: updatedCategory,
     });
   } catch (error) {
     res.status(500).json({
@@ -141,7 +154,6 @@ export const deleteEvent = async (req, res) => {
     });
   }
 };
-
 
 export const deleteCategory = async (req, res) => {
   try {
@@ -176,7 +188,10 @@ export const updateCategoryName = async (req, res) => {
     const { category_id } = req.params;
     const { category_name } = req.body;
 
-    if (!category_name) {
+    console.log(category_name, category_id);
+    const cat = category_name.category_name;
+
+    if (!cat) {
       return res.status(400).json({
         success: false,
         message: "Category name is required",
@@ -185,7 +200,7 @@ export const updateCategoryName = async (req, res) => {
 
     const updatedCategory = await Event.findByIdAndUpdate(
       category_id,
-      { category_name },
+      { category_name:cat },
       { new: true, runValidators: true }
     );
 
@@ -205,13 +220,13 @@ export const updateCategoryName = async (req, res) => {
 
     if (error.code === 11000) {
       return res.status(409).json({
-        success: false,
+       
         message: "Category name already exists",
       });
     }
 
     res.status(500).json({
-      success: false,
+ 
       message: error.message,
     });
   }

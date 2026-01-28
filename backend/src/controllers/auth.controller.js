@@ -14,7 +14,7 @@ export const login = async (req, res) => {
 
     const { email, password } = req.body;
 
-    console.log(email, password);
+  
 
     try {
 
@@ -56,7 +56,7 @@ export const checkAuth = (req, res) => {
     try {
         res.status(200).json(req.user)
 
-        console.log("data : ", req.user);
+ 
 
 
     } catch (error) {
@@ -80,7 +80,7 @@ export const logout = (req, res) => {
 
 export const signup = async (req, res) => {
 
-    console.log(req.body)
+ 
 
     const { name, email, password, authUser } = req.body;
     if (!name || !email || !password || !authUser) {
