@@ -70,17 +70,28 @@ const category = category_id;
     });
   }
 };
-
+ 
 
 export const updateEvent = async (req, res) => {
   try {
-    const { category_id } = req.body;
+    const { category_id, event_id } = req.params;
 
-    console.log(req.body);
-    
+ 
+    if (
+      !mongoose.Types.ObjectId.isValid(category_id) ||
+      !mongoose.Types.ObjectId.isValid(event_id)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid category_id or event_id",
+      });
+    }
 
-    const updatedEvent = await Event.findOneAndUpdate(
-      { "categories._id": category_id }, 
+    const updatedCategory = await Event.findOneAndUpdate(
+      {
+        _id: category_id,
+        "categories._id": event_id,
+      },
       {
         $set: {
           "categories.$.title": req.body.title,
@@ -92,17 +103,23 @@ export const updateEvent = async (req, res) => {
           "categories.$.available_seats": req.body.available_seats,
         },
       },
-      { new: true }
+      {
+        new: true,
+        runValidators: true,
+      }
     );
 
-    if (!updatedEvent) {
-      return res.status(404).json({ message: "Event not found" });
+    if (!updatedCategory) {
+      return res.status(404).json({
+ 
+        message: "Category or Event not found",
+      });
     }
 
     res.status(200).json({
-      success: true,
+ 
       message: "Event updated successfully",
-      data: updatedEvent,
+      data: updatedCategory,
     });
   } catch (error) {
     res.status(500).json({
@@ -111,6 +128,7 @@ export const updateEvent = async (req, res) => {
     });
   }
 };
+
  
 
 export const deleteEvent = async (req, res) => {
