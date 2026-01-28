@@ -5,14 +5,16 @@ export const createEvent = async (req, res) => {
     const {
       title,
       description,
-      category,
+     
       duration,
       venue,
       date,
       available_seats,
     } = req.body;
 
-    console.log(req.body);
+    const { category_id} = req.params;
+
+const category = category_id;
     
 
     if (
@@ -31,9 +33,7 @@ export const createEvent = async (req, res) => {
     }
 
 
-    let categoryDoc = await Event.findOne({
-      category_name: category,
-    });
+    let categoryDoc = await Event.findById(category);
 
     const newEvent = {
       title,
@@ -223,16 +223,19 @@ export const addCategory = async (req, res) => {
   try {
     const { category_name } = req.body;
 
+    const name = category_name.category_name;
+    
 
-    if (!category_name || category_name.trim() === "") {
+
+    if (!name ) {
       return res.status(400).json({
         message: "Category name is required"
       });
     }
 
 
-    const existingCategory = await Category.findOne({
-      category_name: category_name.trim()
+    const existingCategory = await Event.findOne({
+      category_name:name
     });
 
     if (existingCategory) {
@@ -242,8 +245,8 @@ export const addCategory = async (req, res) => {
     }
 
 
-    const category = await Category.create({
-      category_name: category_name.trim(),
+    const category = await Event.create({
+      category_name: name,
       categories: []
     });
 
